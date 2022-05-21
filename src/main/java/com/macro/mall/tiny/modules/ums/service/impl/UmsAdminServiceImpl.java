@@ -18,7 +18,7 @@ import com.macro.mall.tiny.modules.ums.model.*;
 import com.macro.mall.tiny.modules.ums.service.UmsAdminCacheService;
 import com.macro.mall.tiny.modules.ums.service.UmsAdminRoleRelationService;
 import com.macro.mall.tiny.modules.ums.service.UmsAdminService;
-import com.macro.mall.security.util.JwtTokenUtil;
+import com.macro.mall.tiny.security.util.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -61,13 +61,17 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper,UmsAdmin> im
     @Autowired
     private UmsResourceMapper resourceMapper;
 
+    @Autowired
+    private UmsAdminMapper umsAdminMapper;
+
     @Override
     public UmsAdmin getAdminByUsername(String username) {
         UmsAdmin admin = adminCacheService.getAdmin(username);
         if(admin!=null) return  admin;
         QueryWrapper<UmsAdmin> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UmsAdmin::getUsername,username);
-        List<UmsAdmin> adminList = list(wrapper);
+        //wrapper.lambda().eq(UmsAdmin::getUsername,username);
+        wrapper.eq("username",username);
+        List<UmsAdmin> adminList = umsAdminMapper.selectList(wrapper);//list(wrapper);
         if (adminList != null && adminList.size() > 0) {
             admin = adminList.get(0);
             adminCacheService.setAdmin(admin);
@@ -84,7 +88,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper,UmsAdmin> im
         umsAdmin.setStatus(1);
         //查询是否有相同用户名的用户
         QueryWrapper<UmsAdmin> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UmsAdmin::getUsername,umsAdmin.getUsername());
+        //wrapper.lambda().eq(UmsAdmin::getUsername,umsAdmin.getUsername());
+        wrapper.eq("username",umsAdmin.getUsername());
         List<UmsAdmin> umsAdminList = list(wrapper);
         if (umsAdminList.size() > 0) {
             return null;
@@ -109,6 +114,7 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper,UmsAdmin> im
                 Asserts.fail("帐号已被禁用");
             }
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            //这一步相当于把登陆的用户，记录到了系统中，
             SecurityContextHolder.getContext().setAuthentication(authentication);
             token = jwtTokenUtil.generateToken(userDetails);
 //            updateLoginTimeByUsername(username);
@@ -196,7 +202,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper,UmsAdmin> im
         int count = roleIds == null ? 0 : roleIds.size();
         //先删除原来的关系
         QueryWrapper<UmsAdminRoleRelation> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UmsAdminRoleRelation::getAdminId,adminId);
+        //wrapper.lambda().eq(UmsAdminRoleRelation::getAdminId,adminId);
+        wrapper.eq("admin_id",adminId);
         adminRoleRelationService.remove(wrapper);
         //建立新关系
         if (!CollectionUtils.isEmpty(roleIds)) {
@@ -239,7 +246,8 @@ public class UmsAdminServiceImpl extends ServiceImpl<UmsAdminMapper,UmsAdmin> im
             return -1;
         }
         QueryWrapper<UmsAdmin> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UmsAdmin::getUsername,param.getUsername());
+        //wrapper.lambda().eq(UmsAdmin::getUsername,param.getUsername());
+        wrapper.eq("username",param.getUsername());
         List<UmsAdmin> adminList = list(wrapper);
         if(CollUtil.isEmpty(adminList)){
             return -2;

@@ -81,7 +81,8 @@ public class UmsRoleServiceImpl extends ServiceImpl<UmsRoleMapper,UmsRole>implem
     public int allocMenu(Long roleId, List<Long> menuIds) {
         //先删除原有关系
         QueryWrapper<UmsRoleMenuRelation> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UmsRoleMenuRelation::getRoleId,roleId);
+        //wrapper.lambda().eq(UmsRoleMenuRelation::getRoleId,roleId);
+        wrapper.eq("role_id",roleId);
         roleMenuRelationService.remove(wrapper);
         //批量插入新关系
         List<UmsRoleMenuRelation> relationList = new ArrayList<>();

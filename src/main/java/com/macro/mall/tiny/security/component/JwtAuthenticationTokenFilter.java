@@ -1,6 +1,6 @@
 package com.macro.mall.tiny.security.component;
 
-import com.macro.mall.security.util.JwtTokenUtil;
+import com.macro.mall.tiny.security.util.JwtTokenUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +48,12 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     LOGGER.info("authenticated user:{}", username);
+                    //security上下文
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         }
+        //执行完毕，传递给下一个Filter
         chain.doFilter(request, response);
     }
 }

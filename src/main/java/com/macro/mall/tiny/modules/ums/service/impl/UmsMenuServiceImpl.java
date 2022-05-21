@@ -57,8 +57,9 @@ public class UmsMenuServiceImpl extends ServiceImpl<UmsMenuMapper,UmsMenu>implem
     public Page<UmsMenu> list(Long parentId, Integer pageSize, Integer pageNum) {
         Page<UmsMenu> page = new Page<>(pageNum,pageSize);
         QueryWrapper<UmsMenu> wrapper = new QueryWrapper<>();
-        wrapper.lambda().eq(UmsMenu::getParentId,parentId)
-                .orderByDesc(UmsMenu::getSort);
+//        wrapper.lambda().eq(UmsMenu::getParentId,parentId)
+//                .orderByDesc(UmsMenu::getSort);
+        wrapper.eq("parent_id",parentId).orderByDesc("sort");
         return page(page,wrapper);
     }
 
